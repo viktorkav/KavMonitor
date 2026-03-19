@@ -1,0 +1,32 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+
+# Secrets and local env files
+.env
+.env.*
+!.env.example
+deploy_config.env
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime / generated artifacts
+*.log
+output/
+generated_output/
+relatorios_reddit/
+.pip-cache/
+.monitor.lock
+.last_run

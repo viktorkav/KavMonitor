@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Briefing - {{ today }}</title>
+    <meta name="description" content="Static digest generated from Reddit and RSS sources">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f1ea;
+            --surface: #fffdfa;
+            --surface-strong: #f0e8dd;
+            --line: #d8ccbd;
+            --text: #1f252b;
+            --muted: #66707a;
+            --accent: #1b6b87;
+            --accent-soft: #e3eef2;
+            --accent-strong: #0f4356;
+            --ok-soft: #ebf3ea;
+            --ok-text: #34624d;
+            --warn-soft: #f6efe1;
+            --warn-text: #8a6330;
+            --shadow: 0 16px 40px rgba(31, 37, 43, 0.08);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Source Sans 3", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(27, 107, 135, 0.08), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(143, 110, 61, 0.10), transparent 30%),
+                var(--bg);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 20px 48px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(255, 253, 250, 0.96), rgba(240, 232, 221, 0.88));
+            border: 1px solid rgba(216, 204, 189, 0.9);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        h1 {
+            margin: 10px 0 8px;
+            font-family: "Newsreader", serif;
+            font-size: clamp(2.1rem, 3vw, 3.6rem);
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-copy {
+            max-width: 720px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 1.04rem;
+        }
+
+        .hero-meta {
+            display: grid;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .meta-card {
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(216, 204, 189, 0.85);
+            border-radius: 16px;
+            padding: 12px 14px;
+        }
+
+        .meta-label {
+            display: block;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            font-family: "Newsreader", serif;
+            font-size: 1.7rem;
+            margin: 0;
+        }
+
+        .section-note {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .picks-grid,
+        .rss-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .card,
+        .rss-item,
+        .trending-item,
+        .sub-group {
+            background: var(--surface);
+            border: 1px solid rgba(216, 204, 189, 0.95);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .card {
+            overflow: hidden;
+        }
+
+        .pick-media {
+            min-height: 210px;
+            background: linear-gradient(135deg, rgba(240, 232, 221, 0.92), rgba(227, 238, 242, 0.88));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pick-media img,
+        .pick-media video,
+        .pick-media iframe,
+        .thread-media img,
+        .thread-media video,
+        .thread-media iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 0;
+        }
+
+        .pick-media.no-media::after {
+            content: "Preview unavailable";
+            font-size: 0.94rem;
+            color: var(--muted);
+        }
+
+        .pick-body {
+            padding: 18px;
+        }
+
+        .pick-meta,
+        .pick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .badge,
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-gaming {
+            background: var(--ok-soft);
+            color: var(--ok-text);
+        }
+
+        .badge-tech {
+            background: var(--accent-soft);
+            color: var(--accent-strong);
+        }
+
+        .badge-sub,
+        .badge-score,
+        .tag {
+            background: var(--surface-strong);
+            color: var(--text);
+        }
+
+        .pick-headline,
+        .rss-title {
+            margin: 0 0 10px;
+            font-family: "Newsreader", serif;
+            line-height: 1.08;
+        }
+
+        .pick-headline {
+            font-size: 1.55rem;
+        }
+
+        .pick-headline a,
+        .thread-link,
+        .rss-item {
+            text-decoration: none;
+        }
+
+        .pick-summary,
+        .rss-time,
+        .thread-selftext,
+        .comment-body,
+        .thread-info {
+            color: var(--muted);
+        }
+
+        .trending-list,
+        .feed-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .trending-item {
+            display: grid;
+            grid-template-columns: auto auto 1fr auto;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 18px;
+            text-decoration: none;
+        }
+
+        .trending-rank {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            color: var(--accent-strong);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .trending-score {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .trending-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            line-height: 1.25;
+        }
+
+        .trending-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            margin-top: 4px;
+        }
+
+        .rss-item {
+            display: block;
+            padding: 18px;
+        }
+
+        .rss-source {
+            display: inline-block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .rss-title {
+            display: block;
+            font-size: 1.28rem;
+        }
+
+        .sub-group {
+            overflow: hidden;
+        }
+
+        .sub-header,
+        .thread-header {
+            list-style: none;
+            cursor: pointer;
+        }
+
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            font-weight: 700;
+        }
+
+        .sub-header::-webkit-details-marker,
+        .thread-header::-webkit-details-marker {
+            display: none;
+        }
+
+        .sub-label,
+        .thread-main {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .sub-post-count,
+        .thread-score {
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--surface-strong);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .sub-posts {
+            padding: 0 14px 14px;
+        }
+
+        .thread {
+            border: 1px solid rgba(216, 204, 189, 0.95);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .thread + .thread {
+            margin-top: 12px;
+        }
+
+        .thread-header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px 16px;
+        }
+
+        .thread-title {
+            font-weight: 700;
+            min-width: 0;
+        }
+
+        .thread-comments {
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .thread-body {
+            border-top: 1px solid rgba(216, 204, 189, 0.7);
+            padding: 16px;
+        }
+
+        .thread-media,
+        .thread-selftext,
+        .comment-box {
+            margin-bottom: 14px;
+        }
+
+        .thread-media {
+            overflow: hidden;
+            border-radius: 12px;
+            background: var(--surface-strong);
+        }
+
+        .thread-selftext p {
+            margin: 0 0 12px;
+        }
+
+        .comment-box {
+            padding: 14px;
+            background: #faf7f2;
+            border: 1px solid rgba(216, 204, 189, 0.85);
+            border-radius: 12px;
+        }
+
+        .comment-author {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .thread-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .site-footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.92rem;
+            padding: 8px 0 0;
+        }
+
+        @media (max-width: 920px) {
+            .hero-top,
+            .trending-item,
+            .thread-header {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-meta,
+            .picks-grid,
+            .rss-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trending-item {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <section class="hero">
+            <div class="hero-top">
+                <div>
+                    <span class="eyebrow">Daily Briefing</span>
+                    <h1>Reddit and RSS digest</h1>
+                    <p class="hero-copy">A static report assembled from selected Reddit communities and RSS sources, with optional AI-assisted editor picks and translated headlines.</p>
+                </div>
+                <div class="hero-meta">
+                    <div class="meta-card">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value">{{ today }}</span>
+                    </div>
+                    <div class="meta-card">
+                        <span class="meta-label">Generated</span>
+                        <span class="meta-value">{{ generation_time }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2 class="section-title">Editor's Picks</h2>
+                <span class="section-note">{{ picks|length }} selected items</span>
+            </div>
+            <div class="picks-grid">
+                {% for post in picks %}
+                <article class="card">
+                    <div class="pick-media {% if not post.media_html %}no-media{% endif %}">
+                        {% if post.media_html %}
+                        {{ post.media_html | safe }}
+                        {% endif %}
+                    </div>
+                    <div class="pick-body">
+                        <div class="pick-meta">
+                            <span class="badge badge-{{ post.category }}">{{ post.category }}</span>
+                            <span class="badge badge-sub">r/{{ post.subreddit }}</span>
+                            <span class="badge badge-score">{{ post.score | fmt_number }} points</span>
+                        </div>
+                        <h3 class="pick-headline">
+                            <a href="{{ post.url_original }}" target="_blank" rel="noopener">
+                                {{ post.ai_headline or post.title }}
+                            </a>
+                        </h3>
+                        {% if post.ai_summary %}
+                        <p class="pick-summary">{{ post.ai_summary }}</p>
+                        {% endif %}
+                        {% if post.ai_tags %}
+                        <div class="pick-tags">
+                            {% for tag in post.ai_tags %}
+                            <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2 class="section-title">Trending</h2>
+                <span class="section-note">Ranked by activity</span>
+            </div>
+            <div class="trending-list">
+                {% for post in trending %}
+                <a href="{{ post.url_original }}" target="_blank" rel="noopener" class="trending-item">
+                    <span class="trending-rank">{{ loop.index }}</span>
+                    <span class="trending-score">{{ post.score | fmt_number }} pts</span>
+                    <div>
+                        <div class="trending-title">{{ post.title_ptbr or post.title }}</div>
+                        <div class="trending-info">
+                            <span>r/{{ post.subreddit }}</span>
+                            <span>{{ post.comments }} comments</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-{{ post.category }}">{{ post.category }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if rss_articles %}
+        <section class="section">
+            <div class="section-head">
+                <h2 class="section-title">From the Web</h2>
+                <span class="section-note">{{ rss_articles|length }} articles</span>
+            </div>
+            <div class="rss-grid">
+                {% for article in rss_articles %}
+                <a href="{{ article.url }}" target="_blank" rel="noopener" class="rss-item">
+                    <span class="rss-source">{{ article.source }}</span>
+                    <span class="rss-title">{{ article.title }}</span>
+                    {% if article.date_str %}
+                    <span class="rss-time">{{ article.date_str }}</span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="section">
+            <div class="section-head">
+                <h2 class="section-title">Full Feed</h2>
+                <span class="section-note">{{ by_sub|length }} communities</span>
+            </div>
+            <div class="feed-list">
+                {% for sub_name, posts in by_sub.items() %}
+                <details class="sub-group">
+                    <summary class="sub-header">
+                        <span class="sub-label">
+                            <span>r/{{ sub_name }}</span>
+                            <span class="sub-post-count">{{ posts|length }}</span>
+                        </span>
+                        <span>Open</span>
+                    </summary>
+                    <div class="sub-posts">
+                        {% for post in posts %}
+                        <details class="thread">
+                            <summary class="thread-header">
+                                <span class="thread-score">{{ post.score | fmt_number }} pts</span>
+                                <span class="thread-title">{{ post.title }}</span>
+                                <span class="thread-comments">{{ post.comments }} comments</span>
+                            </summary>
+                            <div class="thread-body">
+                                {% if post.media_html %}
+                                <div class="thread-media">
+                                    {{ post.media_html | safe }}
+                                </div>
+                                {% endif %}
+                                {% if post.selftext_rendered %}
+                                <div class="thread-selftext">
+                                    {{ post.selftext_rendered | safe }}
+                                </div>
+                                {% endif %}
+                                {% if post.top_comment %}
+                                <div class="comment-box">
+                                    <div class="comment-author">
+                                        <span>u/{{ post.top_comment.author }}</span>
+                                        <span>{{ post.top_comment.score }} points</span>
+                                    </div>
+                                    <div class="comment-body">{{ post.top_comment.body }}</div>
+                                </div>
+                                {% endif %}
+                                <a href="{{ post.url_original }}" target="_blank" rel="noopener" class="thread-link">Open thread</a>
+                            </div>
+                        </details>
+                        {% endfor %}
+                    </div>
+                </details>
+                {% endfor %}
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            Generated on {{ today }} at {{ generation_time }}
+        </footer>
+    </div>
+</body>
+
+</html>

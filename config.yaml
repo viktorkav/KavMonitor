@@ -1,0 +1,48 @@
+# Reddit Feed Digest configuration
+
+subreddits:
+  gaming:
+    - gaming
+    - pcmasterrace
+    - PS5
+    - NintendoSwitch
+    - XboxSeriesX
+    - Steam
+    - Games
+  tech:
+    - gadgets
+    - technology
+    - buildapc
+    - programming
+    - apple
+
+  giants:
+    - gaming
+    - pcmasterrace
+    - technology
+    - gadgets
+
+rss_feeds:
+  - name: "Kotaku"
+    url: "https://kotaku.com/rss"
+  - name: "Polygon"
+    url: "https://www.polygon.com/rss/index.xml"
+  - name: "Eurogamer"
+    url: "https://www.eurogamer.net/feed"
+  - name: "PC Gamer"
+    url: "https://www.pcgamer.com/rss/"
+  - name: "Ars Technica"
+    url: "https://feeds.arstechnica.com/arstechnica/index"
+  - name: "The Verge"
+    url: "https://www.theverge.com/rss/index.xml"
+
+ai:
+  provider: "gemini"
+  gemini:
+    model: "gemini-3-flash-preview"
+  editors_picks: 4
+  request_timeout_seconds: 70
+  translation_timeout_seconds: 45
+
+output:
+  directory: "generated_output"

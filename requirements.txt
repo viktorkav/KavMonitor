@@ -1,0 +1,7 @@
+praw==7.8.1
+jinja2==3.1.6
+pyyaml==6.0.3
+python-dotenv==1.2.1
+google-genai>=1.56.0,<2.0.0
+feedparser==6.0.12
+flask==3.1.3
